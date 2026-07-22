@@ -4,7 +4,8 @@ import type { OpenCV } from "./opencv";
 // is only injected on first call (i.e. when the user actually enters the
 // detection flow), never on initial page load.
 
-const OPENCV_URL = "https://docs.opencv.org/4.10.0/opencv.js";
+// Verified 200 on 2026-07-22: 7.9 MB WASM build, uses onRuntimeInitialized.
+const OPENCV_URL = "https://cdn.jsdelivr.net/npm/opencv.js@1.2.1/opencv.js";
 
 type MaybeCv = {
   cv?: unknown;
@@ -68,6 +69,7 @@ export function loadOpenCV(): Promise<OpenCV> {
       existing.addEventListener(
         "error",
         () => {
+          existing.remove();
           cvPromise = null;
           reject(new Error("Failed to load OpenCV.js from CDN."));
         },
@@ -81,6 +83,7 @@ export function loadOpenCV(): Promise<OpenCV> {
     script.async = true;
     script.onload = onScriptReady;
     script.onerror = () => {
+      script.remove();
       cvPromise = null;
       reject(new Error("Failed to load OpenCV.js from CDN."));
     };
